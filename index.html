@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PSD</title>
+<script src="source/PSD.js"></script>
+<script src="source/PSD.TypeData.js"></script>
+<script src="source/PSD.TypeData.Raw.js"></script>
+<script src="source/PSD.TypeData.Int8.js"></script>
+<script src="source/PSD.TypeData.Uint8.js"></script>
+<script src="source/PSD.TypeData.String.js"></script>
+<script src="source/PSD.TypeData.Section.js"></script>
+<script src="source/PSD.TypeData.SectionArray.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+
+document.getElementById('data').addEventListener('change', function(e){
+	var blob = e.target.files[0];
+	var reader = new FileReader();
+	reader.addEventListener('load', function(e){
+		var buffer = e.target.result;
+		var view = new DataView(buffer);
+var array = [];
+for (var i = 0, n = view.byteLength; i < n; i++) {
+	array[i] = view.getUint8(i);
+}
+		var psd = new PSD(new Uint8Array(array));
+		psd.console();
+	});
+	reader.readAsArrayBuffer(blob);
+});
+
+});
+</script>
+<style>
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: silver;
+}
+input {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
+.result input {
+	display: none;
+}
+.result canvas {
+	outline: 1px solid;
+}
+</style>
+</head>
+<body>
+<label><input type="file" id="data"></label>
+</body>
+</html>
