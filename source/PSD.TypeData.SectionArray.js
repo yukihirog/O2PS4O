@@ -43,6 +43,9 @@ PSD.TypeData.SectionArray.prototype.parse = function(conf, array){
 					}, array.slice(_passed));
 					this.data[_index] = _child;
 					_passed += _child.length;
+if (isNaN(_passed)) {
+//	console.log(conf.name, _child, _child.length);
+}
 					_index++;
 				}
 			} else if (this.length) {
@@ -62,7 +65,9 @@ PSD.TypeData.SectionArray.prototype.parse = function(conf, array){
 		} else {
 			this.length = _passed;
 		}
-
+if (isNaN(this.length)) {
+//	console.log(conf.name, this.length, _passed);
+}
 		this.array = array.slice(0, this.length);
 	}
 };

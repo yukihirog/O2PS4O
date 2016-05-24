@@ -64,6 +64,9 @@ PSD.TypeData.Section.prototype.parse = function(conf, array){
 
 				this.data[_conf.name] = _data;
 				_passed += _data.length;
+if (isNaN(_passed)) {
+	console.log(_conf.name, _data, _data.length);
+}
 			}).bind(this));
 		}
 

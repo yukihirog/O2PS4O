@@ -913,7 +913,29 @@ PSD.prototype.config = [
 							{
 								name   : 'rectangle',
 								length : 4 * 4,
-								type   : 'Raw'
+								type   : 'Section',
+								children : [
+									{
+										name   : 'top',
+										length : 4,
+										type   : 'Uint8'
+									},
+									{
+										name   : 'left',
+										length : 4,
+										type   : 'Uint8'
+									},
+									{
+										name   : 'bottom',
+										length : 4,
+										type   : 'Uint8'
+									},
+									{
+										name   : 'right',
+										length : 4,
+										type   : 'Uint8'
+									}
+								]
 							},
 							{
 								name   : 'channels',
@@ -926,9 +948,7 @@ PSD.prototype.config = [
 									return 6 * section.get('channels').getValue();
 								},
 								type   : 'SectionArray',
-								repeat : function(section){
-									return section.get('channels').getValue();
-								},
+								repeat : 'channels',
 								children : [
 									{
 										name   : 'channelId',
@@ -936,9 +956,9 @@ PSD.prototype.config = [
 										type   : 'Int8'
 									},
 									{
-										name   : 'channelData',
+										name   : 'lengthChannelData',
 										length : 4,
-										type   : 'Int8'
+										type   : 'Uint8'
 									},
 								]
 							},
@@ -995,7 +1015,29 @@ PSD.prototype.config = [
 												return 0;
 											}
 										},
-										type   : 'Raw'
+										type   : 'Section',
+										children : [
+											{
+												name   : 'top',
+												length : 4,
+												type   : 'Uint8'
+											},
+											{
+												name   : 'left',
+												length : 4,
+												type   : 'Uint8'
+											},
+											{
+												name   : 'bottom',
+												length : 4,
+												type   : 'Uint8'
+											},
+											{
+												name   : 'right',
+												length : 4,
+												type   : 'Uint8'
+											}
+										]
 									},
 									{
 										name   : 'defaultColor',
@@ -1088,7 +1130,29 @@ PSD.prototype.config = [
 												return 0;
 											}
 										},
-										type   : 'Raw'
+										type   : 'Section',
+										children : [
+											{
+												name   : 'top',
+												length : 4,
+												type   : 'Uint8'
+											},
+											{
+												name   : 'left',
+												length : 4,
+												type   : 'Uint8'
+											},
+											{
+												name   : 'bottom',
+												length : 4,
+												type   : 'Uint8'
+											},
+											{
+												name   : 'right',
+												length : 4,
+												type   : 'Uint8'
+											}
+										]
 									}
 								]
 							},
@@ -1124,12 +1188,12 @@ PSD.prototype.config = [
 											{
 												name   : 'channelSourceRange',
 												length : 4,
-												type   : 'Uint8'
+												type   : 'Raw'
 											},
 											{
 												name   : 'channelDestinationRange',
 												length : 4,
-												type   : 'Uint8'
+												type   : 'Raw'
 											}
 										]
 									}
@@ -1147,6 +1211,63 @@ PSD.prototype.config = [
 								},
 								type   : 'String',
 								charset: 'sjis'
+							},
+							{
+								name   : 'padded',
+								length : function(section){
+									return 4 - (section.get('nameLength').length + section.get('name').length) % 4;
+								},
+								type   : 'Raw'
+							},
+							{
+								name     : 'AdditionalLayerInformation',
+								type     : 'SectionArray',
+								length   : function(section){
+									return section.get('extraLength').getValue()
+										- section.get('LayerMaskData').length
+										- section.get('BlendingRanges').length
+										- section.get('nameLength').length
+										- section.get('name').length
+										- section.get('padded').length
+									;
+								},
+								children : [
+									{
+										name     : 'signature',
+										length   : 4,
+										type     : 'String'
+									},
+									{
+										name     : 'key',
+										length   : 4,
+										type     : 'String'
+									},
+									{
+										name     : 'dataLength',
+										length   : 4,
+										type     : 'Uint8'
+									},
+									{
+										name     : 'data',
+										length   : 'dataLength',
+										type     : 'Raw'
+									}
+								]
+							}
+						]
+					},
+					{
+						name     : 'channelImageData',
+						type     : 'Section',
+						children : [
+							{
+								name     : 'compressionMethod',
+								length   : 2,
+								type     : 'Uint8'
+							},
+							{
+								name     : 'imageData',
+								type     : 'Raw'
 							}
 						]
 					}
