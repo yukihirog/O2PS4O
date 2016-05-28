@@ -8,15 +8,19 @@ PSD.TypeData.Section.prototype = new PSD.TypeData();
 PSD.TypeData.Section.prototype.get = function(name){
 	return this.data[name];
 };
-PSD.TypeData.Section.prototype.parseLength = function(length){
+PSD.TypeData.Section.prototype.parseLength = function(length, passed){
 	if (typeof length === 'string') {
-		length = this.get(length).toUint8();
+		if (length == 'remain' && this.get('length')) {
+			length = this.get('length').toUint8() - (passed || 0);
+		} else {
+			length = this.get(length).toUint8();
+		}
 	} else if (typeof length === 'function') {
 		length = length(this);
 	}
 	return length;
 };
-PSD.TypeData.Section.prototype.parseRepeat = function(repeat){
+PSD.TypeData.Section.prototype.parseRepeat = function(repeat, passed){
 	if (typeof repeat === 'string') {
 		repeat = this.get(repeat).toUint8();
 	} else if (typeof repeat === 'function') {
@@ -42,7 +46,7 @@ PSD.TypeData.Section.prototype.parse = function(conf, array){
 
 		if (conf.children) {
 			conf.children.forEach((function(_conf){
-				var _length = this.parseLength(_conf.length);
+				var _length = this.parseLength(_conf.length, _passed);
 				var _end = undefined;
 				if (typeof _length === 'number') {
 					_end = _passed + _length;
@@ -50,7 +54,7 @@ PSD.TypeData.Section.prototype.parse = function(conf, array){
 
 				var _type     = this.parseType(_conf.type);
 				var _children = this.parseType(_conf.children);
-				var _repeat   = _conf.repeat ? this.parseRepeat(_conf.repeat) : 0;
+				var _repeat   = _conf.repeat ? this.parseRepeat(_conf.repeat, _passed) : 0;
 				var _data = new PSD.TypeData[_type](
 					{
 						name     : _conf.name,
@@ -64,9 +68,6 @@ PSD.TypeData.Section.prototype.parse = function(conf, array){
 
 				this.data[_conf.name] = _data;
 				_passed += _data.length;
-if (isNaN(_passed)) {
-	console.log(_conf.name, _data, _data.length);
-}
 			}).bind(this));
 		}
 

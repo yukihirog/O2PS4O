@@ -19,12 +19,13 @@ document.getElementById('data').addEventListener('change', function(e){
 	reader.addEventListener('load', function(e){
 		var buffer = e.target.result;
 		var view = new DataView(buffer);
-var array = [];
-for (var i = 0, n = view.byteLength; i < n; i++) {
-	array[i] = view.getUint8(i);
-}
+		var array = [];
+		for (var i = 0, n = view.byteLength; i < n; i++) {
+			array[i] = view.getUint8(i);
+		}
 		var psd = new PSD(new Uint8Array(array));
 		psd.console();
+		window.psd = psd;
 	});
 	reader.readAsArrayBuffer(blob);
 });

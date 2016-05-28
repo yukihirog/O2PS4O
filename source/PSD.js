@@ -2,6 +2,31 @@ function PSD(array){
 	this.data = {};
 	this.parse(array);
 };
+PSD.prototype.get = function(name){
+	return this.data[name];
+};
+PSD.prototype.parse = function(array){
+	var conf = this.config;
+	if (conf && array) {
+		var _passed = 0;
+		conf.forEach((function(_conf){
+			var _data = new PSD.TypeData[_conf.type](_conf, array.slice(_passed));
+			this.data[_conf.name] = _data;
+			_passed += this.data[_conf.name].length;
+		}).bind(this));
+	}
+};
+PSD.prototype.toObject = function(){
+	var _data = {};
+	for (var _name in this.data) {
+		_data[_name] = this.get(_name).toObject();
+	}
+	return _data;
+};
+PSD.prototype.console = function(){
+	console.log('PSD(Object): ', this.toObject());
+	console.log('PSD: ', this);
+};
 PSD.prototype.config = [
 	{
 		name     : 'FileHeaderSection',
@@ -1258,6 +1283,9 @@ PSD.prototype.config = [
 					},
 					{
 						name     : 'channelImageData',
+						length   : function(section){
+							return section.get('length').getValue() - section.get('layerCount').length - section.get('LayerRecords').length;
+						},
 						type     : 'Section',
 						children : [
 							{
@@ -1327,6 +1355,33 @@ PSD.prototype.config = [
 						type   : 'Raw'
 					}
 				]
+			},
+			{
+				name     : 'AdditionalLayerInfo',
+				type     : 'SectionArray',
+				length   : 'remain',
+				children : [
+					{
+						name     : 'signature',
+						length   : 4,
+						type     : 'String'
+					},
+					{
+						name     : 'key',
+						length   : 4,
+						type     : 'String'
+					},
+					{
+						name     : 'dataLength',
+						length   : 4,
+						type     : 'Uint8'
+					},
+					{
+						name     : 'data',
+						length   : 'dataLength',
+						type     : 'Raw'
+					}
+				]
 			}
 		]
 	},
@@ -1346,28 +1401,3 @@ PSD.prototype.config = [
 		]
 	}
 ];
-PSD.prototype.get = function(name){
-	return this.data[name];
-};
-PSD.prototype.parse = function(array){
-	var conf = this.config;
-	if (conf && array) {
-		var _passed = 0;
-		conf.forEach((function(_conf){
-			var _data = new PSD.TypeData[_conf.type](_conf, array.slice(_passed));
-			this.data[_conf.name] = _data;
-			_passed += this.data[_conf.name].length;
-		}).bind(this));
-	}
-};
-PSD.prototype.toObject = function(){
-	var _data = {};
-	for (var _name in this.data) {
-		_data[_name] = this.get(_name).toObject();
-	}
-	return _data;
-};
-PSD.prototype.console = function(){
-	console.log('PSD(Object): ', this.toObject());
-	console.log('PSD: ', this);
-};
