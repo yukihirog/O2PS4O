@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
 <title>PSD</title>
 <script src="source/PSD.js"></script>
 <script src="source/PSD.TypeData.js"></script>
@@ -13,23 +14,78 @@
 <script>
 document.addEventListener('DOMContentLoaded', function(){
 
-document.getElementById('data').addEventListener('change', function(e){
-	var blob = e.target.files[0];
-	var reader = new FileReader();
-	reader.addEventListener('load', function(e){
-		var buffer = e.target.result;
-		var view = new DataView(buffer);
-		var array = [];
-		for (var i = 0, n = view.byteLength; i < n; i++) {
-			array[i] = view.getUint8(i);
-		}
-		var psd = new PSD(new Uint8Array(array));
-		psd.console();
-		window.psd = psd;
-	});
-	reader.readAsArrayBuffer(blob);
-});
+	function showResult(psd) {
+		var data = psd.toObject();
 
+		var container = document.body;
+		var ul = document.createElement('ul');
+		container.appendChild(ul);
+		container = ul;
+
+		function dig(container, data){
+			for (var name in data) {
+				var li = document.createElement('li');
+				container.appendChild(li);
+
+				var div = document.createElement('div');
+				li.appendChild(div);
+				div.appendChild(document.createTextNode(name + ' : '));
+
+				if (typeof data[name] !== 'object') {
+					div.appendChild(document.createTextNode(data[name]));
+				} else {
+					div.appendChild(document.createTextNode('(' + data[name].constructor.name + ')'));
+
+					if (data[name] instanceof Array || data[name] instanceof Uint8Array || data[name] instanceof Int8Array) {
+						div.appendChild(document.createTextNode('[' + data[name].length + ']'));
+					}
+
+					div.setAttribute('aria-expanded', 'false');
+
+					var ul = document.createElement('ul');
+					li.appendChild(ul);
+
+					div.appendChild(ul);
+
+					arguments.callee(ul, data[name]);
+				}
+			}
+		};
+
+		dig(container, data);
+	};
+
+	document.getElementById('data').addEventListener('change', function(e){
+		var blob = e.target.files[0];
+		var reader = new FileReader();
+		reader.addEventListener('load', function(e){
+			var buffer = e.target.result;
+			var view = new DataView(buffer);
+			var array = [];
+			for (var i = 0, n = view.byteLength; i < n; i++) {
+				array[i] = view.getUint8(i);
+			}
+			var psd = new PSD(new Uint8Array(array));
+			psd.console();
+			window.psd = psd;
+
+			document.body.setAttribute('class', 'result');
+
+			showResult(psd);
+		});
+		reader.readAsArrayBuffer(blob);
+	});
+
+	document.addEventListener('click', function(e){
+		var _target = e.target;
+		while(_target && (!_target.getAttribute || !_target.getAttribute('aria-expanded'))){
+			_target = _target.parentNode;
+		}
+		if (_target && _target.getAttribute && _target.getAttribute('aria-expanded')) {
+			var flag = _target.getAttribute('aria-expanded') == 'true';
+			_target.setAttribute('aria-expanded', !flag);
+		}
+	});
 });
 </script>
 <style>
@@ -37,19 +93,46 @@ html,
 body {
 	margin: 0;
 	padding: 0;
-	height: 100%;
-	background: silver;
+}
+body {
+	padding: 20px;
+	font-family: monospace;
 }
 input {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 	width: 100%;
-	height: 100%;
-	box-sizing: border-box;
 }
 .result input {
 	display: none;
 }
-.result canvas {
-	outline: 1px solid;
+.result li {
+	margin-top: 0.5em;
+}
+.result ul {
+	margin: 0 0 1em;
+	padding: 0;
+	list-style-type: none;
+}
+[aria-expanded] {
+	cursor: pointer;
+	padding-left: 0.5em;
+	border-left: 5px solid #ccc;
+}
+[aria-expanded]::before {
+	content: "[+] ";
+}
+[aria-expanded] > ul {
+	display: none;
+}
+[aria-expanded="true"]::before {
+	content: "[-] ";
+}
+[aria-expanded="true"] > ul {
+	display: block;
 }
 </style>
 </head>
