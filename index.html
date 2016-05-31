@@ -22,12 +22,13 @@ document.addEventListener('DOMContentLoaded', function(){
 		container.appendChild(ul);
 		container = ul;
 
-		function dig(container, data){
+		function dig(path, container, data){
 			for (var name in data) {
 				var li = document.createElement('li');
 				container.appendChild(li);
 
 				var div = document.createElement('div');
+				div.setAttribute('title', path);
 				li.appendChild(div);
 				div.appendChild(document.createTextNode(name + ' : '));
 
@@ -47,12 +48,12 @@ document.addEventListener('DOMContentLoaded', function(){
 
 					div.appendChild(ul);
 
-					arguments.callee(ul, data[name]);
+					arguments.callee(path + '.' + name, ul, data[name]);
 				}
 			}
 		};
 
-		dig(container, data);
+		dig('PSD', container, data);
 	};
 
 	document.getElementById('data').addEventListener('change', function(e){
