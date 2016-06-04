@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		};
 
 		dig('PSD', container, data);
+		
 	};
 
 	document.getElementById('data').addEventListener('change', function(e){
@@ -73,6 +74,11 @@ document.addEventListener('DOMContentLoaded', function(){
 			document.body.setAttribute('class', 'result');
 
 			showResult(psd);
+
+			var canvas = document.getElementById('canvas');
+			psd.draw(canvas);
+//			canvas.width *= 4;
+//			canvas.height *= 4;
 		});
 		reader.readAsArrayBuffer(blob);
 	});
@@ -107,6 +113,9 @@ input {
 	bottom: 0;
 	width: 100%;
 }
+#canvas {
+	display: none;
+}
 .result input {
 	display: none;
 }
@@ -117,6 +126,10 @@ input {
 	margin: 0 0 1em;
 	padding: 0;
 	list-style-type: none;
+}
+.result #canvas {
+	display: block;
+	outline: 1px solid #7f7f7f;
 }
 [aria-expanded] {
 	cursor: pointer;
@@ -139,5 +152,6 @@ input {
 </head>
 <body>
 <label><input type="file" id="data"></label>
+<canvas id="canvas"></canvas>
 </body>
 </html>

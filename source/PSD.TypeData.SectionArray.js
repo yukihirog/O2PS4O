@@ -49,17 +49,9 @@ PSD.TypeData.SectionArray.prototype.parse = function(conf, array){
 					_passed += _child.length;
 					_index++;
 				}
-			} else if (this.length) {
-				while (_passed < this.length) {
-					var _child = new PSD.TypeData.Section({
-						children : conf.children
-					}, array.slice(_passed));
-					this.data[_index] = _child;
-					_passed += _child.length;
-					_index++;
-				}
 			} else {
-				while (_passed < array.length) {
+				var _length = this.length ? this.length : array.length;
+				while (_passed < _length) {
 					var _child = new PSD.TypeData.Section({
 						children : conf.children
 					}, array.slice(_passed));

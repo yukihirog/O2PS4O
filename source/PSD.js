@@ -1,5 +1,6 @@
 function PSD(array){
-	this.data = {};
+	this.data   = {};
+	this.length = 0;
 	this.parse(array);
 };
 PSD.prototype.get = function(name){
@@ -15,6 +16,16 @@ PSD.prototype.parse = function(array){
 			_passed += this.data[_conf.name].length;
 		}).bind(this));
 	}
+	this.length = this.getTotalBytes();
+};
+PSD.prototype.getTotalBytes = function(){
+	var bytes = 0;
+	for (var name in this.data) {
+		if (this.data.hasOwnProperty(name)) {
+			bytes += this.get(name).length;
+		}
+	}
+	return bytes;
 };
 PSD.prototype.toObject = function(){
 	var _data = {};
@@ -26,6 +37,84 @@ PSD.prototype.toObject = function(){
 PSD.prototype.console = function(){
 	console.log('PSD(Object): ', this.toObject());
 	console.log('PSD: ', this);
+};
+PSD.prototype.getCanvasSize = function(){
+	var _meta = this.get('FileHeaderSection');
+	var _canvasSize = {
+		width  : _meta.get('width').getValue(),
+		height : _meta.get('height').getValue()
+	};
+	return _canvasSize;
+};
+PSD.prototype.draw = function(canvas){
+	if (!canvas) {
+		canvas = document.createElement('canvas');
+	}
+
+	var _meta = this.get('FileHeaderSection');
+	var _canvasSize = this.getCanvasSize();
+	canvas.setAttribute('width',  _canvasSize.width);
+	canvas.setAttribute('height', _canvasSize.height);
+
+	var _layers     = this.get('LayerAndMaskInformationSection');
+	var _layerInfo  = _layers.get('LayerInfo');
+	var _records    = _layerInfo.get('LayerRecords');
+
+	var _channelImageData = _layerInfo.get('channelImageData').toObject();
+
+	var context = canvas.getContext('2d');
+	context.clearRect(0, 0, _canvasSize.width, _canvasSize.height);
+
+	var _cursor = 0;
+	for (var _layerIndex = 0, _layerCount = _layerInfo.get('layerCount').getValue(); _layerIndex < _layerCount; _layerIndex++) {
+		var _record = _records.get(_layerIndex);
+
+		var _layerRect = _record.get('rectangle').toObject();
+		var _layerSize = {
+			width  : _layerRect.right  - _layerRect.left,
+			height : _layerRect.bottom - _layerRect.top
+		};
+
+		var _channelInfo = _record.get('ChannelInformation');
+		var _channelConfigs = [];
+		for (var _channelInfoIndex = 0, _channelInfoLength = _record.get('channels').getValue(); _channelInfoIndex < _channelInfoLength; _channelInfoIndex++) {
+			var _channelConfigData = _channelInfo.get(_channelInfoIndex);
+			_channelConfigs.push({
+				id     : _channelConfigData.get('channelId').getValue(),
+				length : _channelConfigData.get('lengthChannelData').getValue()
+			});
+		}
+
+		var _canvasImageData  = context.createImageData(_layerSize.width, _layerSize.height);
+		var _dataSource       = _channelImageData.imageData.slice(_cursor);
+
+		for (var _layerPixelIndex = 0, _layerPixelLength = _layerSize.width * _layerSize.height; _layerPixelIndex < _layerPixelLength; _layerPixelIndex++) {
+			for (var _channelConfigsIndex = 0, _channelConfigsLength = _channelConfigs.length; _channelConfigsIndex < _channelConfigsLength; _channelConfigsIndex++) {
+				var _channelConfig = _channelConfigs[_channelConfigsIndex];
+				var _rgbaIndex = 0;
+				switch (_channelConfig.id) {
+					case 0:
+						_rgbaIndex = 0;
+					break;
+					case 1:
+						_rgbaIndex = 1;
+					break;
+					case 2:
+						_rgbaIndex = 2;
+					break;
+					case -129:
+						_rgbaIndex = 3;
+					break;
+				}
+				_canvasImageData.data[_rgbaIndex] = _dataSource[_cursor];
+				_cursor += _channelConfig.length;
+			}
+		}
+
+		context.putImageData(_canvasImageData, _layerRect.left, _layerRect.top);
+	}
+
+	return canvas;
 };
 PSD.prototype.config = [
 	{
