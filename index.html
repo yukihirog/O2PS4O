@@ -6,6 +6,7 @@
 <script src="source/PSD.js"></script>
 <script src="source/PSD.TypeData.js"></script>
 <script src="source/PSD.TypeData.Raw.js"></script>
+<script src="source/PSD.TypeData.RLE.js"></script>
 <script src="source/PSD.TypeData.Int8.js"></script>
 <script src="source/PSD.TypeData.Uint8.js"></script>
 <script src="source/PSD.TypeData.String.js"></script>
@@ -77,8 +78,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 			var canvas = document.getElementById('canvas');
 			psd.draw(canvas);
-//			canvas.width *= 4;
-//			canvas.height *= 4;
 		});
 		reader.readAsArrayBuffer(blob);
 	});
@@ -130,6 +129,7 @@ input {
 .result #canvas {
 	display: block;
 	outline: 1px solid #7f7f7f;
+	background: url(img/canvas_bg.png);
 }
 [aria-expanded] {
 	cursor: pointer;
