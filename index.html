@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>PSD</title>
+<link rel="stylesheet" href="css/O2PS4O.css">
 <script src="source/PSD.js"></script>
 <script src="source/PSD.TypeData.js"></script>
 <script src="source/PSD.TypeData.Raw.js"></script>
@@ -12,8 +13,17 @@
 <script src="source/PSD.TypeData.String.js"></script>
 <script src="source/PSD.TypeData.Section.js"></script>
 <script src="source/PSD.TypeData.SectionArray.js"></script>
+<script src="source/O2PS4O.js"></script>
+<script src="source/O2PS4O.Event.js"></script>
+<script src="source/O2PS4O.Panel.js"></script>
+<script src="source/O2PS4O.Panel.Layer.js"></script>
+<script src="source/O2PS4O.Panel.Main.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+	var app = window.app = new O2PS4O({
+		template : document.getElementById('app-frame')
+	});
+	document.body.appendChild(app.node);
 
 	function showResult(psd) {
 		var data = psd.toObject();
@@ -59,27 +69,10 @@ document.addEventListener('DOMContentLoaded', function(){
 	};
 
 	document.getElementById('data').addEventListener('change', function(e){
-		var blob = e.target.files[0];
-		var reader = new FileReader();
-		reader.addEventListener('load', function(e){
-			var buffer = e.target.result;
-			var view = new DataView(buffer);
-			var array = [];
-			for (var i = 0, n = view.byteLength; i < n; i++) {
-				array[i] = view.getUint8(i);
-			}
-			var psd = new PSD(new Uint8Array(array));
-			psd.console();
-			window.psd = psd;
-
-			document.body.setAttribute('class', 'result');
-
-			showResult(psd);
-
-			var canvas = document.getElementById('canvas');
-			psd.draw(canvas);
+		app.parse(e.target);
+		app.on('parsed', function(e, data){
+			showResult(data);
 		});
-		reader.readAsArrayBuffer(blob);
 	});
 
 	document.addEventListener('click', function(e){
@@ -95,15 +88,6 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 <style>
-html,
-body {
-	margin: 0;
-	padding: 0;
-}
-body {
-	padding: 20px;
-	font-family: monospace;
-}
 input {
 	position: fixed;
 	top: 0;
@@ -111,6 +95,7 @@ input {
 	right: 0;
 	bottom: 0;
 	width: 100%;
+	z-index: 1;
 }
 #canvas {
 	display: none;
@@ -118,6 +103,7 @@ input {
 .result input {
 	display: none;
 }
+/*
 .result li {
 	margin-top: 0.5em;
 }
@@ -126,6 +112,7 @@ input {
 	padding: 0;
 	list-style-type: none;
 }
+*/
 .result #canvas {
 	display: block;
 	outline: 1px solid #7f7f7f;
@@ -152,6 +139,26 @@ input {
 </head>
 <body>
 <label><input type="file" id="data"></label>
-<canvas id="canvas"></canvas>
+
+<template id="app-frame">
+<div class="O2PS4O-frame">
+<div class="O2PS4O-group-menu panel-group layout-col" data-panel-group="menu">
+<div class="panel O2PS4O-panel-menu">
+メニューパネル
+<!-- /O2PS4O-panel-menu --></div>
+<!-- /layout-row --></div>
+<div class="O2PS4O-group-main panel-group layout-col">
+<div class="panel-group O2PS4O-group-tool layout-row" data-panel-group="tool">
+ツール
+<!-- /O2PS4O-panel-tool --></div>
+<div class="panel-group O2PS4O-group-main" data-panel-group="main">
+<!-- /O2PS4O-panel-main --></div>
+<div class="panel-group O2PS4O-group-info layout-row" data-panel-group="info">
+<!-- /O2PS4O-panel-info --></div>
+<!-- /layout-row --></div>
+<!-- /O2PS4O-frame --></div>
+</template>
+
+
 </body>
 </html>

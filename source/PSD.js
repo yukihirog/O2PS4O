@@ -64,64 +64,112 @@ PSD.prototype.draw = function(canvas){
 	var _records    = _layerInfo.get('LayerRecords');
 
 	var _channelImageData  = _layerInfo.get('channelImageData').toObject();
-	var _compressionMethod = _channelImageData.compressionMethod;
+
+	var _cursor = 0;
+	for (var _layerIndex = 0, _layerCount = _layerInfo.get('layerCount').getValue(); _layerIndex < _layerCount; _layerIndex++) {
+		var  _layerCanvas = this.getLayerImage(_layerIndex);
+		if (_layerCanvas) {
+			_context.drawImage(_layerCanvas, parseFloat(_layerCanvas.getAttribute('data-left'), 10), parseFloat(_layerCanvas.getAttribute('data-top'), 10));
+		}
+	}
+
+	return canvas;
+};
+PSD.prototype.getLayerImageData = function(targetIndex){
+	var _layers     = this.get('LayerAndMaskInformationSection');
+	var _layerInfo  = _layers.get('LayerInfo');
+	var _records    = _layerInfo.get('LayerRecords');
 
 	var _cursor = 0;
 	for (var _layerIndex = 0, _layerCount = _layerInfo.get('layerCount').getValue(); _layerIndex < _layerCount; _layerIndex++) {
 		var _record = _records.get(_layerIndex);
 
-		var _layerRect = _record.get('rectangle').toObject();
-		var _layerSize = {
-			width  : _layerRect.right  - _layerRect.left,
-			height : _layerRect.bottom - _layerRect.top
-		};
-
-		var _layerCanvas = document.createElement('canvas');
-		_layerCanvas.setAttribute('width',  _layerSize.width);
-		_layerCanvas.setAttribute('height', _layerSize.height);
-		var _layerContext = _layerCanvas.getContext('2d');
-
 		var _channelInfo = _record.get('ChannelInformation');
-		var _channelConfigs = [];
-		var _channelDataLength = 0;
+		var _dataLength = 0;
 		for (var _channelInfoIndex = 0, _channelInfoLength = _record.get('channels').getValue(); _channelInfoIndex < _channelInfoLength; _channelInfoIndex++) {
-			var _channelConfigData = _channelInfo.get(_channelInfoIndex);
-			var _channelConfig = {
-				id     : _channelConfigData.get('channelId').getValue(),
-				length : _channelConfigData.get('lengthChannelData').getValue()
-			};
-			_channelConfigs.push(_channelConfig);
-			_channelDataLength += _channelConfig.length;
+			_dataLength += _channelInfo.get(_channelInfoIndex).get('lengthChannelData').getValue();
 		}
 
-		var _canvasImageData  = _layerContext.createImageData(_layerSize.width, _layerSize.height);
+		if (targetIndex === _layerIndex) {
+			var _layerData = _layerInfo.get('channelImageData').get('imageData').toObject().slice(_cursor, _cursor + _dataLength);
+			return _layerData;
+		}
 
-		if (_compressionMethod == 1) {
-			for (var _channelConfigsIndex = 0, _channelConfigsLength = _channelConfigs.length; _channelConfigsIndex < _channelConfigsLength; _channelConfigsIndex++) {
-				var _channelConfig = _channelConfigs[_channelConfigsIndex];
-				var _rgbaIndex = 0;
-				switch (_channelConfig.id) {
-					case 0:
-						_rgbaIndex = 0;
-					break;
-					case 1:
-						_rgbaIndex = 1;
-					break;
-					case 2:
-						_rgbaIndex = 2;
-					break;
-					case -129:
-						_rgbaIndex = 3;
-					break;
-				}
+		_cursor += _dataLength;
+	}
+};
+PSD.prototype.getLayerImage = function(targetIndex){
+	var _data   = this.getLayerImageData(targetIndex);
+	if (!_data) {
+		return;
+	}
 
-				var _channelDataSource = _channelImageData.imageData.slice(_cursor, _cursor + _channelConfig.length);
-				_cursor += _channelConfig.length;
+	var _layers     = this.get('LayerAndMaskInformationSection');
+	var _layerInfo  = _layers.get('LayerInfo');
+	var _records    = _layerInfo.get('LayerRecords');
 
+	var _compressionMethod = _layerInfo.get('channelImageData').get('compressionMethod').getValue();
+
+	var _record = _records.get(targetIndex);
+	var _layerRect = _record.get('rectangle').toObject();
+	var _layerSize = {
+		width  : _layerRect.right  - _layerRect.left,
+		height : _layerRect.bottom - _layerRect.top
+	};
+
+	var _layerCanvas = document.createElement('canvas');
+	_layerCanvas.setAttribute('data-top', _layerRect.top);
+	_layerCanvas.setAttribute('data-left', _layerRect.left);
+	_layerCanvas.setAttribute('width',  _layerSize.width);
+	_layerCanvas.setAttribute('height', _layerSize.height);
+	var _layerContext = _layerCanvas.getContext('2d');
+	var _canvasImageData  = _layerContext.createImageData(_layerSize.width, _layerSize.height);
+
+	var _channelInfo = _record.get('ChannelInformation');
+	var _channelConfigs = [];
+	var _channelDataLength = 0;
+	for (var _channelInfoIndex = 0, _channelInfoLength = _record.get('channels').getValue(); _channelInfoIndex < _channelInfoLength; _channelInfoIndex++) {
+		var _channelConfigData = _channelInfo.get(_channelInfoIndex);
+		var _channelConfig = {
+			id     : _channelConfigData.get('channelId').getValue(),
+			length : _channelConfigData.get('lengthChannelData').getValue()
+		};
+		_channelConfigs.push(_channelConfig);
+		_channelDataLength += _channelConfig.length;
+	}
+
+	var _cursor = 0;
+	for (var _channelConfigsIndex = 0, _channelConfigsLength = _channelConfigs.length; _channelConfigsIndex < _channelConfigsLength; _channelConfigsIndex++) {
+		var _channelConfig = _channelConfigs[_channelConfigsIndex];
+		var _rgbaIndex = 0;
+		switch (_channelConfig.id) {
+			case 0:
+				_rgbaIndex = 0;
+			break;
+			case 1:
+				_rgbaIndex = 1;
+			break;
+			case 2:
+				_rgbaIndex = 2;
+			break;
+			case -129:
+				_rgbaIndex = 3;
+			break;
+		}
+
+		var _channelDataSource = _data.slice(_cursor, _cursor + _channelConfig.length);
+		_cursor += _channelConfig.length;
+
+		var _dataSource = [];
+		switch (_compressionMethod) {
+			case 0:
+				_dataSource = _channelDataSource;
+			break;
+			case 1:
 				var _channelDataCursor = 0;
 
 				var _lineDataLength = 2;
-				var _lines      = _layerSize.height;
+				var _lines = _layerSize.height;
 
 				var _linesData  = _channelDataSource.slice(_channelDataCursor, _channelDataCursor + _lines * _lineDataLength);
 				var _lineLengths = [];
@@ -139,46 +187,19 @@ PSD.prototype.draw = function(canvas){
 					_channelDataCursor += _lineLength;
 
 					var _uncompressed = (new PSD.TypeData.RLE({}, _compressed)).getValue();
-
-					var _pixelStart = _lineIndex * _layerSize.width * 4;
-					for (var _colIndex = 0, _width = _layerSize.width; _colIndex < _width; _colIndex++) {
-						_canvasImageData.data[_pixelStart + _colIndex * 4 + _rgbaIndex] = _uncompressed[_colIndex] || 0;
-					}
+					_dataSource.push.apply(_dataSource, _uncompressed);
 				}
-			}
-		} else {
-			for (var _channelConfigsIndex = 0, _channelConfigsLength = _channelConfigs.length; _channelConfigsIndex < _channelConfigsLength; _channelConfigsIndex++) {
-				var _channelConfig = _channelConfigs[_channelConfigsIndex];
-				var _rgbaIndex = 0;
-				switch (_channelConfig.id) {
-					case 0:
-						_rgbaIndex = 0;
-					break;
-					case 1:
-						_rgbaIndex = 1;
-					break;
-					case 2:
-						_rgbaIndex = 2;
-					break;
-					case -129:
-						_rgbaIndex = 3;
-					break;
-				}
-
-				var _channelDataSource = _channelImageData.imageData.slice(_cursor, _cursor + _channelConfig.length);
-				_cursor += _channelConfig.length;
-
-				for (var _index = 0, _n = _channelDataSource.length; _index < _n; _index++) {
-					_canvasImageData.data[_index * 4 + _rgbaIndex] = _channelDataSource[_index] || 0;
-				}
-			}
+			break;
 		}
 
-		_layerContext.putImageData(_canvasImageData, 0, 0);
-		_context.drawImage(_layerCanvas, _layerRect.left, _layerRect.top);
+		for (var _index = 0, _n = _dataSource.length; _index < _n; _index++) {
+			_canvasImageData.data[_index * 4 + _rgbaIndex] = _dataSource[_index] || 0;
+		}
 	}
 
-	return canvas;
+	_layerContext.putImageData(_canvasImageData, 0, 0);
+
+	return _layerCanvas;
 };
 PSD.prototype.config = [
 	{
