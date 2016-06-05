@@ -16,65 +16,21 @@
 <script src="source/O2PS4O.js"></script>
 <script src="source/O2PS4O.Event.js"></script>
 <script src="source/O2PS4O.Panel.js"></script>
+<script src="source/O2PS4O.Panel.Menu.js"></script>
 <script src="source/O2PS4O.Panel.Layer.js"></script>
 <script src="source/O2PS4O.Panel.Main.js"></script>
+<script src="source/O2PS4O.Panel.Debug.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
 	var app = window.app = new O2PS4O({
 		template : document.getElementById('app-frame')
 	});
 	document.body.appendChild(app.node);
-
-	function showResult(psd) {
-		var data = psd.toObject();
-
-		var container = document.body;
-		var ul = document.createElement('ul');
-		container.appendChild(ul);
-		container = ul;
-
-		function dig(path, container, data){
-			for (var name in data) {
-				var li = document.createElement('li');
-				container.appendChild(li);
-
-				var div = document.createElement('div');
-				div.setAttribute('title', path);
-				li.appendChild(div);
-				div.appendChild(document.createTextNode(name + ' : '));
-
-				if (typeof data[name] !== 'object') {
-					div.appendChild(document.createTextNode(data[name]));
-				} else {
-					div.appendChild(document.createTextNode('(' + data[name].constructor.name + ')'));
-
-					if (data[name] instanceof Array || data[name] instanceof Uint8Array || data[name] instanceof Int8Array) {
-						div.appendChild(document.createTextNode('[' + data[name].length + ']'));
-					}
-
-					div.setAttribute('aria-expanded', 'false');
-
-					var ul = document.createElement('ul');
-					li.appendChild(ul);
-
-					div.appendChild(ul);
-
-					arguments.callee(path + '.' + name, ul, data[name]);
-				}
-			}
-		};
-
-		dig('PSD', container, data);
-		
-	};
-
+/*
 	document.getElementById('data').addEventListener('change', function(e){
 		app.parse(e.target);
-		app.on('parsed', function(e, data){
-			showResult(data);
-		});
 	});
-
+*/
 	document.addEventListener('click', function(e){
 		var _target = e.target;
 		while(_target && (!_target.getAttribute || !_target.getAttribute('aria-expanded'))){
@@ -88,64 +44,16 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 <style>
-input {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	width: 100%;
-	z-index: 1;
-}
-#canvas {
-	display: none;
-}
 .result input {
 	display: none;
-}
-/*
-.result li {
-	margin-top: 0.5em;
-}
-.result ul {
-	margin: 0 0 1em;
-	padding: 0;
-	list-style-type: none;
-}
-*/
-.result #canvas {
-	display: block;
-	outline: 1px solid #7f7f7f;
-	background: url(img/canvas_bg.png);
-}
-[aria-expanded] {
-	cursor: pointer;
-	padding-left: 0.5em;
-	border-left: 5px solid #ccc;
-}
-[aria-expanded]::before {
-	content: "[+] ";
-}
-[aria-expanded] > ul {
-	display: none;
-}
-[aria-expanded="true"]::before {
-	content: "[-] ";
-}
-[aria-expanded="true"] > ul {
-	display: block;
 }
 </style>
 </head>
 <body>
-<label><input type="file" id="data"></label>
 
 <template id="app-frame">
 <div class="O2PS4O-frame">
 <div class="O2PS4O-group-menu panel-group layout-col" data-panel-group="menu">
-<div class="panel O2PS4O-panel-menu">
-メニューパネル
-<!-- /O2PS4O-panel-menu --></div>
 <!-- /layout-row --></div>
 <div class="O2PS4O-group-main panel-group layout-col">
 <div class="panel-group O2PS4O-group-tool layout-row" data-panel-group="tool">

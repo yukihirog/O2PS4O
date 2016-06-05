@@ -22,6 +22,8 @@ body {
 .O2PS4O-frame .panel-group {
 	display: flex;
 	box-sizing: border-box;
+	overflow: auto;
+	font-size: 12px;
 }
 .O2PS4O-frame .layout-col {
 	flex-direction: row;
@@ -50,7 +52,8 @@ body {
 	overflow: auto;
 }
 .O2PS4O-group-info {
-	width: 200px;
+	max-width: 25%;
+	min-width: 200px;
 	border-left: 1px solid #000;
 }
 
@@ -65,6 +68,36 @@ body {
 	font-size: 10px;
 	line-height: 1;
 	font-weight: normal;
+}
+
+.O2PS4O-frame .O2PS4O-panel-menu {
+	outline: 0 none;
+	font-size: 12px;
+	line-height: 20px;
+}
+.O2PS4O-panel-menu ul {
+	display: flex;
+	flex-direction: row;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+.O2PS4O-panel-menu li {
+}
+.O2PS4O-panel-menu label {
+	cursor: pointer;
+}
+.O2PS4O-panel-menu label:hover,
+.O2PS4O-panel-menu label:focus,
+.O2PS4O-panel-menu label:active {
+	background: #3366ff;
+	color: #fff;
+}
+.O2PS4O-panel-menu .menu-input {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	overflow: hidden;
 }
 
 .O2PS4O-panel-canvas {
@@ -82,6 +115,9 @@ body {
 	padding: 5px;
 	border-top: 1px solid #000;
 	cursor: pointer;
+}
+.layer-item[data-hidden="true"] {
+	opacity: 0.5;
 }
 .layer-item:hover {
 	background: #7f7f7f;
@@ -120,4 +156,41 @@ body {
 	height: auto;
 	max-width: 100%;
 	max-height: 100%;
+}
+
+
+
+
+
+
+
+
+.O2PS4O-panel-debug {
+	font-size: 12px;
+	font-family: monospace;
+}
+.O2PS4O-panel-debug li {
+	margin-top: 0.5em;
+}
+.O2PS4O-panel-debug ul {
+	margin: 0 0 1em;
+	padding: 0;
+	list-style-type: none;
+}
+.O2PS4O-panel-debug [aria-expanded] {
+	cursor: pointer;
+	padding-left: 0.5em;
+	border-left: 5px solid #ccc;
+}
+.O2PS4O-panel-debug [aria-expanded]::before {
+	content: "[+] ";
+}
+.O2PS4O-panel-debug [aria-expanded] > ul {
+	display: none;
+}
+.O2PS4O-panel-debug [aria-expanded="true"]::before {
+	content: "[-] ";
+}
+.O2PS4O-panel-debug [aria-expanded="true"] > ul {
+	display: block;
 }

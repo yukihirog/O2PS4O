@@ -10,7 +10,7 @@ O2PS4O.Event = function (conf) {
 	this.isTrusted                 = true;
 	this.propagateStopped          = false;
 	this.propagateStoppedImmediate = false;
-	this.detail                    = data;
+	this.detail                    = null;
 	this.init(conf);
 };
 O2PS4O.Event.prototype.init = function(conf){

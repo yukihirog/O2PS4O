@@ -46,18 +46,20 @@ PSD.prototype.getCanvasSize = function(){
 	};
 	return _canvasSize;
 };
+PSD.prototype.initCanvas = function(canvas){
+	var _canvasSize = this.getCanvasSize();
+	canvas.setAttribute('width',  _canvasSize.width);
+	canvas.setAttribute('height', _canvasSize.height);
+};
 PSD.prototype.draw = function(canvas){
 	if (!canvas) {
 		canvas = document.createElement('canvas');
 	}
 
-	var _meta = this.get('FileHeaderSection');
-	var _canvasSize = this.getCanvasSize();
-	canvas.setAttribute('width',  _canvasSize.width);
-	canvas.setAttribute('height', _canvasSize.height);
+	this.initCanvas(canvas);
 
 	var _context = canvas.getContext('2d');
-	_context.clearRect(0, 0, _canvasSize.width, _canvasSize.height);
+	_context.clearRect(0, 0, parseFloat(canvas.getAttribute('width'), 10), parseFloat(canvas.getAttribute('height'), 10));
 
 	var _layers     = this.get('LayerAndMaskInformationSection');
 	var _layerInfo  = _layers.get('LayerInfo');

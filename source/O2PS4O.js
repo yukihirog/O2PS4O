@@ -17,6 +17,24 @@ O2PS4O.prototype.initNode = function(node){
 	var _node = document.createElement('div');
 	_node.appendChild(node);
 	this.node = _node;
+	this.node.addEventListener('dragenter', this.onDragEnter.bind(this));
+	this.node.addEventListener('dragover', this.onDragOver.bind(this));
+	this.node.addEventListener('drop', this.onDrop.bind(this));
+};
+O2PS4O.prototype.onDragEnter = function(e){
+	e.preventDefault();
+	e.stopPropagation();
+};
+O2PS4O.prototype.onDragOver = function(e){
+	e.preventDefault();
+	e.stopPropagation();
+};
+O2PS4O.prototype.onDrop = function(e){
+	e.preventDefault();
+	e.stopPropagation();
+
+	var blob = e.dataTransfer.files[0];
+	this.parse(blob);
 };
 O2PS4O.prototype.initPanel = function(){
 	var panels = O2PS4O.Panel;
@@ -30,7 +48,16 @@ O2PS4O.prototype.initPanel = function(){
 					container.appendChild(panel.node);
 				}
 			}
+			panel.trigger('create');
 		}
+	}
+
+	if (this.panels.Menu) {
+		this.panels.Menu.on('fileopen', this.onFileOpen.bind(this));
+	}
+
+	if (this.panels.Layer && this.panels.Main) {
+		this.panels.Layer.on('change', this.onLayerChange.bind(this));
 	}
 };
 O2PS4O.prototype.on = function(type, func){
@@ -65,7 +92,7 @@ O2PS4O.prototype.createEvent = function(type, data){
 };
 O2PS4O.prototype.trigger = function(type, data){
 	if (!this._events || !this._events[type]) {
-		return _ret;
+		return;
 	}
 
 	var _e = this.createEvent(type, data);
@@ -79,11 +106,28 @@ O2PS4O.prototype.trigger = function(type, data){
 		}
 	}
 };
-O2PS4O.prototype.parse = function(input){
-	var blob = input.files[0];
+O2PS4O.prototype.parse = function(blob){
 	var reader = new FileReader();
 	reader.addEventListener('load', this.onLoad.bind(this));
 	reader.readAsArrayBuffer(blob);
+};
+O2PS4O.prototype.draw = function(){
+	var main = this.panels.Main;
+	main.clear();
+
+	var layers = this.panels.Layer.node.querySelectorAll('.layer-item');
+	for (var i = layers.length - 1; i >= 0; i--) {
+		var layer = layers[i];
+		if (layer.getAttribute('data-hidden') !== 'true') {
+			var layerCanvas = layer.querySelector('.layer-thumb canvas');
+			if (layerCanvas) {
+				main.drawCanvas(layerCanvas);
+			}
+		}
+	}
+};
+O2PS4O.prototype.onFileOpen = function(e, blob){
+	this.parse(blob);
 };
 O2PS4O.prototype.onLoad = function(e){
 	var buffer = e.target.result;
@@ -106,5 +150,8 @@ O2PS4O.prototype.onLoad = function(e){
 
 	this.trigger('parsed', this.psd);
 
-	
+	this.draw();
+};
+O2PS4O.prototype.onLayerChange = function(e){
+	this.draw();
 };

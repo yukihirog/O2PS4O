@@ -6,7 +6,8 @@ O2PS4O.Panel = function(conf){
 O2PS4O.Panel.prototype.conf = {
 	group    : 'info',
 	template : '<div class="panel"></div>',
-	events   : []
+	events   : [],
+	nodeEvents : []
 };
 O2PS4O.Panel.prototype.init = function(conf){
 	if (conf) {
@@ -14,6 +15,10 @@ O2PS4O.Panel.prototype.init = function(conf){
 
 		if (conf.events) {
 			this.initEvents(conf.events);
+		}
+
+		if (conf.nodeEvents) {
+			this.initNodeEvents(conf.nodeEvents);
 		}
 	}
 };
@@ -32,6 +37,18 @@ O2PS4O.Panel.prototype.initEvents = function(events){
 				func = this[func].bind(this);
 			}
 			this.on(event.type, func);
+		}
+	}
+};
+O2PS4O.Panel.prototype.initNodeEvents = function(events){
+	if (events) {
+		for (var i = 0, n = events.length; i < n; i++) {
+			var event = events[i];
+			var func = event.func;
+			if (typeof func === 'string') {
+				func = this[func].bind(this);
+			}
+			this.node.addEventListener(event.type, func);
 		}
 	}
 };
@@ -67,7 +84,7 @@ O2PS4O.Panel.prototype.createEvent = function(type, data){
 };
 O2PS4O.Panel.prototype.trigger = function(type, data){
 	if (!this._events || !this._events[type]) {
-		return _ret;
+		return;
 	}
 
 	var _e = this.createEvent(type, data);

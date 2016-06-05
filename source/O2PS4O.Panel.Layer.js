@@ -30,6 +30,12 @@ O2PS4O.Panel.Layer.prototype.conf = {
 			type : 'parsed',
 			func : 'onParsed'
 		}
+	],
+	nodeEvents : [
+		{
+			type : 'click',
+			func : 'onClick'
+		}
 	]
 };
 O2PS4O.Panel.Layer.prototype.reset = function(psd){
@@ -74,4 +80,15 @@ O2PS4O.Panel.Layer.prototype.add = function(psd, layerIndex, layerRecord){
 };
 O2PS4O.Panel.Layer.prototype.onParsed = function(e, psd){
 	this.reset(psd);
+};
+O2PS4O.Panel.Layer.prototype.onClick = function(e){
+	var target = e.target;
+	while (target && (target.nodeType == 1 && target.getAttribute('class') !== 'layer-item')) {
+		target = target.parentNode;
+	}
+	if (target) {
+		var flag = target.getAttribute('data-hidden') == 'true';
+		target.setAttribute('data-hidden', !flag);
+		this.trigger('change');
+	}
 };
