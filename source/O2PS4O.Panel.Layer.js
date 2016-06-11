@@ -86,7 +86,7 @@ O2PS4O.Panel.Layer.prototype.onClick = function(e){
 	while (target && (target.nodeType == 1 && target.getAttribute('class') !== 'layer-item')) {
 		target = target.parentNode;
 	}
-	if (target) {
+	if (target && target.nodeType == 1 && target.getAttribute('class') === 'layer-item') {
 		var flag = target.getAttribute('data-hidden') == 'true';
 		target.setAttribute('data-hidden', !flag);
 		this.trigger('change');

@@ -60,7 +60,11 @@ body {
 .O2PS4O-frame .panel {
 	outline: 1px solid #000;
 }
+.O2PS4O-frame .panel + .panel {
+	margin-top: 1px;
+}
 .O2PS4O-frame .panel-header {
+	background: #1f1f1f;
 }
 .O2PS4O-frame .panel-title {
 	margin: 0;
@@ -68,6 +72,10 @@ body {
 	font-size: 10px;
 	line-height: 1;
 	font-weight: normal;
+}
+.O2PS4O-frame .panel-body {
+	min-height: 20px;
+	border-top: 1px solid #2f2f2f;
 }
 
 .O2PS4O-frame .O2PS4O-panel-menu {
@@ -115,6 +123,9 @@ body {
 	padding: 5px;
 	border-top: 1px solid #000;
 	cursor: pointer;
+}
+.layer-item:first-child {
+	border-top: 0 none;
 }
 .layer-item[data-hidden="true"] {
 	opacity: 0.5;

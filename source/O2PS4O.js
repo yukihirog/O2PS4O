@@ -34,7 +34,9 @@ O2PS4O.prototype.onDrop = function(e){
 	e.stopPropagation();
 
 	var blob = e.dataTransfer.files[0];
-	this.parse(blob);
+	if (blob) {
+		this.parse(blob);
+	}
 };
 O2PS4O.prototype.initPanel = function(){
 	var panels = O2PS4O.Panel;

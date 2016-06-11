@@ -7,7 +7,13 @@ O2PS4O.Panel.Debug.prototype = new O2PS4O.Panel();
 O2PS4O.Panel.Debug.prototype.conf = {
 	group : 'info',
 	template : [
-		'<div class="panel O2PS4O-panel-debug"></div>'
+		'<section class="panel O2PS4O-panel-debug">',
+		'<header class="panel-header">',
+		'<h1 class="panel-title">debug</h1>',
+		'</header>',
+		'<div class="panel-body">',
+		'<!-- /panel-body --></div>',
+		'<!-- /O2PS4O-panel-layer --></section>'
 	].join(''),
 	events : [
 		{
@@ -17,12 +23,12 @@ O2PS4O.Panel.Debug.prototype.conf = {
 	]
 };
 O2PS4O.Panel.Debug.prototype.clear = function(){
-	this.node.innerHTML = '';
+	this.node.querySelector('.panel-body').innerHTML = '';
 };
 O2PS4O.Panel.Debug.prototype.echo = function(){
 	var data = psd.toObject();
 
-	var container = this.node;
+	var container = this.node.querySelector('.panel-body');
 
 	var ul = document.createElement('ul');
 	container.appendChild(ul);
