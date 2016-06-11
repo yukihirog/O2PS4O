@@ -77,6 +77,12 @@ PSD.prototype.draw = function(canvas){
 
 	return canvas;
 };
+PSD.prototype.getLayerRecords = function(){
+	var _layers     = this.get('LayerAndMaskInformationSection');
+	var _layerInfo  = _layers.get('LayerInfo');
+	var _records    = _layerInfo.get('LayerRecords');
+	return _records.toObject();
+};
 PSD.prototype.getLayerRecord = function(targetIndex){
 	var _layers     = this.get('LayerAndMaskInformationSection');
 	var _layerInfo  = _layers.get('LayerInfo');

@@ -177,6 +177,8 @@ O2PS4O.prototype.onLoad = function(e){
 O2PS4O.prototype.onLayerChange = function(e){
 	this.draw();
 };
-O2PS4O.prototype.onLayerSaveRequested = function(e){
-	this.panels.Layer.save(this.psd, 0);
+O2PS4O.prototype.onLayerSaveRequested = function(e, index){
+	if (index >= 0) {
+		this.panels.Layer.save(this.psd, index);
+	}
 };

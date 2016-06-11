@@ -33,25 +33,22 @@ body {
 }
 
 
-.O2PS4O-group-menu {
-	height: 20px;
+.O2PS4O-frame .O2PS4O-group-menu {
+	height: 21px;
 	border-bottom: 1px solid #000;
+	overflow: visible;
 }
-.O2PS4O-group-tool {
+.O2PS4O-frame .O2PS4O-group-tool {
 	width: 20px;
 	border-right: 1px solid #000;
 }
-.O2PS4O-group-main {
-	flex: 1;
-}
-.O2PS4O-group-main {
+.O2PS4O-frame .O2PS4O-group-main {
 	flex: 1;
 	display: flex;
-	flex-direction: column;
 	justify-content: center;
 	overflow: auto;
 }
-.O2PS4O-group-info {
+.O2PS4O-frame .O2PS4O-group-info {
 	max-width: 25%;
 	min-width: 200px;
 	border-left: 1px solid #000;
@@ -91,6 +88,11 @@ body {
 	list-style-type: none;
 }
 .O2PS4O-panel-menu li {
+	position: relative;
+	margin: 0 0 0 1em;
+}
+.O2PS4O-panel-menu li:first-child {
+	margin-left: 0;
 }
 .O2PS4O-panel-menu label {
 	cursor: pointer;
@@ -171,6 +173,14 @@ body {
 
 
 
+[data-func="layersave"] select {
+	position: absolute;
+	left: -1000000px;
+	top: 100%;
+}
+[data-func="layersave"] select:focus {
+	left: 0;
+}
 
 
 
@@ -205,3 +215,4 @@ body {
 .O2PS4O-panel-debug [aria-expanded="true"] > ul {
 	display: block;
 }
+

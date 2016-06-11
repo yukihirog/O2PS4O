@@ -16,6 +16,10 @@ O2PS4O.Panel.Menu.prototype.conf = {
 		{
 			type : 'create',
 			func : 'onCreate'
+		},
+		{
+			type : 'parsed',
+			func : 'onParsed'
 		}
 	],
 	nodeEvents : [
@@ -46,10 +50,19 @@ O2PS4O.Panel.Menu.prototype.add = function(name, menu){
 		}
 	}
 
+	this.contents[name] = menu;
+
 	menu.trigger('create');
 };
 O2PS4O.Panel.Menu.prototype.onCreate = function(e){
 	this.initChildren();
+};
+O2PS4O.Panel.Menu.prototype.onParsed = function(e, psd){
+	for (var name in this.contents) {
+		if (this.contents.hasOwnProperty(name)) {
+			this.contents[name].trigger(e, psd);
+		}
+	}
 };
 O2PS4O.Panel.Menu.prototype.onEvent = function(e, data){
 	this.trigger(e, data);
