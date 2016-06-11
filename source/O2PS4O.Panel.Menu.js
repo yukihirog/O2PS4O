@@ -1,6 +1,7 @@
 O2PS4O.Panel.Menu = function(conf){
-	this.node = null;
-	this._events = null;
+	this.node     = null;
+	this.contents = {};
+	this._events   = null;
 	this.init(conf || this.conf);
 };
 O2PS4O.Panel.Menu.prototype = new O2PS4O.Panel();
@@ -8,9 +9,7 @@ O2PS4O.Panel.Menu.prototype.conf = {
 	group : 'menu',
 	template : [
 		'<div class="panel O2PS4O-panel-menu">',
-		'<ul>',
-		'<li data-func="fileopen"><label tab-index="0"><span class="menu-title">ファイルを開く</span><span class="menu-input"><input type="file"></label></li>',
-		'</ul>',
+		'<ul class="panel-content"></ul>',
 		'</div>'
 	].join(''),
 	events : [
@@ -20,26 +19,38 @@ O2PS4O.Panel.Menu.prototype.conf = {
 		}
 	],
 	nodeEvents : [
-	]
+	],
+	publicEvents : {
+	}
 };
-O2PS4O.Panel.Menu.prototype.initInput = function(){
-	var label = this.node.querySelector('[data-func="fileopen"] label');
-	var inputContainer = label.querySelector('.menu-input');
-	var input = label.querySelector('input');
-	if (input) {
-		inputContainer.removeChild(input);
+O2PS4O.Panel.Menu.prototype.initChildren = function(){
+	var constructor = O2PS4O.Panel.Menu;
+	for (var name in constructor) {
+		if (constructor.hasOwnProperty(name)) {
+			this.add(name, new constructor[name]());
+		}
+	}
+};
+O2PS4O.Panel.Menu.prototype.add = function(name, menu){
+	var list = this.node.querySelector('.panel-content');
+	list.appendChild(menu.node);
+
+	var handler = this.onEvent.bind(this);
+	var events = menu.conf.publicEvents;
+	if (events) {
+		for (var type in events) {
+			if (type !== 'create' && events.hasOwnProperty(type)) {
+				menu.on(type, handler);
+				this.conf.publicEvents[type] = true;
+			}
+		}
 	}
 
-	input = document.createElement('input');
-	input.setAttribute('type', 'file');
-	inputContainer.appendChild(input);
-	input.addEventListener('change', this.onChange.bind(this));
-};
-O2PS4O.Panel.Menu.prototype.onChange = function(e){
-	var blob = e.target.files[0];
-	this.trigger('fileopen', blob);
-	this.initInput();
+	menu.trigger('create');
 };
 O2PS4O.Panel.Menu.prototype.onCreate = function(e){
-	this.initInput();
+	this.initChildren();
+};
+O2PS4O.Panel.Menu.prototype.onEvent = function(e, data){
+	this.trigger(e, data);
 };

@@ -78,6 +78,50 @@ O2PS4O.Panel.Layer.prototype.add = function(psd, layerIndex, layerRecord){
 
 	layerPanelTree.insertBefore(node, layerPanelTree.firstChild);
 };
+O2PS4O.Panel.Layer.prototype.save = function(psd, layerIndex){
+	var layerRecord = psd.getLayerRecord(layerIndex);
+	var canvas = psd.getLayerImage(layerIndex);
+	if (canvas) {
+		var ext      = 'png';
+		var filename = layerRecord.name + '.' + ext;
+
+		var fileType = 'image/' + ext;
+		var url      = canvas.toDataURL(fileType);
+		var data      = atob(url.split(',')[1]);
+
+		var buffer  = new Uint8Array(data.length);
+		for (var i = 0, n = data.length; i < n; i++) {
+			buffer[i] = data.charCodeAt(i);
+		}
+		var blob = new Blob([buffer.buffer], { type : fileType });
+
+		var objectURL = window.URL.createObjectURL(blob);
+		var link = document.createElement("a");
+		document.body.appendChild(link);
+		link.href = objectURL;
+		link.download = filename;
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(objectURL);
+
+/*
+		var formData = new FormData();
+		formData.set('filename', filename);
+		formData.set('data', blob);
+
+		var method = 'post';
+		var api    = '/api/save.php';
+		var xhr = new XMLHttpRequest();
+		xhr.open(method, api);
+		xhr.overrideMimeType('application/json');
+		xhr.addEventListener('load', function(e) {
+			console.log(e);
+			downloadFile(filename, filename);
+		});
+		xhr.send(formData);
+*/
+	}
+};
 O2PS4O.Panel.Layer.prototype.onParsed = function(e, psd){
 	this.reset(psd);
 };

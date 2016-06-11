@@ -39,6 +39,7 @@ O2PS4O.prototype.onDrop = function(e){
 	}
 };
 O2PS4O.prototype.initPanel = function(){
+	var handler = this.onEvent.bind(this);
 	var panels = O2PS4O.Panel;
 	for (var name in panels) {
 		if (name !== 'prototype' && panels.hasOwnProperty(name)) {
@@ -51,12 +52,20 @@ O2PS4O.prototype.initPanel = function(){
 				}
 			}
 			panel.trigger('create');
+
+			var events = panel.conf.publicEvents;
+			if (events) {
+				for (var type in events) {
+					if (type !== 'create' && events.hasOwnProperty(type)) {
+						panel.on(type, handler);
+					}
+				}
+			}
 		}
 	}
 
-	if (this.panels.Menu) {
-		this.panels.Menu.on('fileopen', this.onFileOpen.bind(this));
-	}
+	this.on('fileopen', this.onFileOpen.bind(this));
+	this.on('layersave', this.onLayerSaveRequested.bind(this));
 
 	if (this.panels.Layer && this.panels.Main) {
 		this.panels.Layer.on('change', this.onLayerChange.bind(this));
@@ -93,11 +102,19 @@ O2PS4O.prototype.createEvent = function(type, data){
 	});
 };
 O2PS4O.prototype.trigger = function(type, data){
+	var _e = null;
+	if (typeof type === 'object') {
+		_e   = type;
+		type = _e.type;
+	}
+
 	if (!this._events || !this._events[type]) {
 		return;
 	}
 
-	var _e = this.createEvent(type, data);
+	if (!_e) {
+		_e = this.createEvent(type, data);
+	}
 	_e.currentTarget = this;
 
 	var _funcs = this._events[type];
@@ -128,6 +145,9 @@ O2PS4O.prototype.draw = function(){
 		}
 	}
 };
+O2PS4O.prototype.onEvent = function(e, data){
+	this.trigger(e, data);
+};
 O2PS4O.prototype.onFileOpen = function(e, blob){
 	this.parse(blob);
 };
@@ -156,4 +176,7 @@ O2PS4O.prototype.onLoad = function(e){
 };
 O2PS4O.prototype.onLayerChange = function(e){
 	this.draw();
+};
+O2PS4O.prototype.onLayerSaveRequested = function(e){
+	this.panels.Layer.save(this.psd, 0);
 };

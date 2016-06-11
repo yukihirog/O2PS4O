@@ -17,6 +17,9 @@ O2PS4O.Event.prototype.init = function(conf){
 	this.timeStamp = Date.now();
 
 	if (conf) {
+		if (conf.type) {
+			this.type = conf.type;
+		}
 		if (conf.target) {
 			this.target = conf.target;
 		}

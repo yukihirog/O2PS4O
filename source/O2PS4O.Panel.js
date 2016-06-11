@@ -11,6 +11,8 @@ O2PS4O.Panel.prototype.conf = {
 };
 O2PS4O.Panel.prototype.init = function(conf){
 	if (conf) {
+		this.conf = conf;
+
 		this.initNode(conf);
 
 		if (conf.events) {
@@ -83,11 +85,19 @@ O2PS4O.Panel.prototype.createEvent = function(type, data){
 	});
 };
 O2PS4O.Panel.prototype.trigger = function(type, data){
+	var _e = null;
+	if (typeof type === 'object') {
+		_e   = type;
+		type = _e.type;
+	}
+
 	if (!this._events || !this._events[type]) {
 		return;
 	}
 
-	var _e = this.createEvent(type, data);
+	if (!_e) {
+		_e = this.createEvent(type, data);
+	}
 	_e.currentTarget = this;
 
 	var _funcs = this._events[type];
