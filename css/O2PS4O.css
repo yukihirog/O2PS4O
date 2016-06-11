@@ -93,15 +93,19 @@ body {
 .O2PS4O-panel-menu li:first-child {
 	margin-left: 0;
 }
+.O2PS4O-panel-menu a,
 .O2PS4O-panel-menu label {
 	padding: 0 0.5em;
 	cursor: pointer;
+	color: #fff;
+}
+.O2PS4O-panel-menu a:hover {
+	background: #3366ff;
 }
 .O2PS4O-panel-menu label:hover,
 .O2PS4O-panel-menu label:focus,
 .O2PS4O-panel-menu label:active {
 	background: #3366ff;
-	color: #fff;
 }
 .O2PS4O-panel-menu .menu-input {
 	display: inline-block;
