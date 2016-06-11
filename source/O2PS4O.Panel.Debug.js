@@ -13,6 +13,10 @@ O2PS4O.Panel.Debug.prototype.conf = {
 		'</header>',
 		'<div class="panel-body">',
 		'<!-- /panel-body --></div>',
+		'<div class="panel-body">',
+		'<a href="sample/simple.psd">simple.psd</a>',
+		'<a href="sample/smallest.psd">smallest.psd</a>',
+		'<!-- /panel-body --></div>',
 		'<!-- /O2PS4O-panel-layer --></section>'
 	].join(''),
 	events : [

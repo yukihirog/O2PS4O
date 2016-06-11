@@ -89,12 +89,12 @@ body {
 }
 .O2PS4O-panel-menu li {
 	position: relative;
-	margin: 0 0 0 1em;
 }
 .O2PS4O-panel-menu li:first-child {
 	margin-left: 0;
 }
 .O2PS4O-panel-menu label {
+	padding: 0 0.5em;
 	cursor: pointer;
 }
 .O2PS4O-panel-menu label:hover,
@@ -214,5 +214,13 @@ body {
 }
 .O2PS4O-panel-debug [aria-expanded="true"] > ul {
 	display: block;
+}
+.O2PS4O-panel-debug a {
+	display: block;
+	padding: 5px;
+	color: #fff;
+}
+.O2PS4O-panel-debug a:hover {
+	background: #3366ff;
 }
 
